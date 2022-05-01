@@ -129,5 +129,5 @@ async function sendFlips({ url, formData}){
 
 }
 
-
+}
 // Guess a flip by clicking either heads or tails button

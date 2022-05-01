@@ -9,7 +9,7 @@ if(!fs.existsSync(datadirectory)){
 
 const logdb = new database(datadirectory + 'log.db')
 const statement = logdb.prepare(`SELECT name FROM sqlite_master WHERE type='table' and name='accesslog';`)
-let row = stmt.get();
+let row = statement.get();
 if (row === undefined) {
     console.log('Creating database')
     const sqlInit = `

@@ -1,5 +1,4 @@
 // Place your server entry point code here
-const args = require('minimist')(process.argv.slice(2))
 const help = (`
 server.js [options]
 
@@ -17,11 +16,8 @@ server.js [options]
   --help	Return this message and exit.
 `)
 
-if(args.help || args.h){
-  console.log(help)
-  process.exit(0)
-}
-const express = require('express');
+
+var express = require('express');
 const app = express();
 const fs = require('fs');
 const morgan = require('morgan');
@@ -29,9 +25,7 @@ const logdb = require('./src/services/database.js');
 app.use(express.json());
 
 
-const server = app.listen(port, () => {
-  console.log('App listening on port %PORT%'.replace('%PORT%',port))
-});
+
 //const accessLog = fs.createWriteStream( logdir+'access.log', { flags: 'a' })
 
 let logging = morgan('combined')
@@ -40,13 +34,7 @@ let logging = morgan('combined')
 app.use(express.static('./public'));
 
 
-
-
-
 const { get } = require('express/lib/response');
-
-
-
 
 
 //Requiring database file & make express use parser
@@ -59,8 +47,16 @@ app.use(express.json());
 let port = 0;
 const args = require('minimist')(process.argv.slice(2)); //slice arguments for port number where args is an array
 port = args['port'] //0
-
-
+if(port == undefined){
+  port = 5000;
+}
+const server = app.listen(port, () => {
+  console.log('App listening on port %PORT%'.replace('%PORT%',port))
+});
+if(args.help || args.h){
+  console.log(help)
+  process.exit(0)
+}
 
 
 app.get('/app/', (req,res,next) => {
