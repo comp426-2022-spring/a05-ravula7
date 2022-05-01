@@ -12,7 +12,7 @@ const fs = require('fs')
 
 
 //Requiring database file & make express use parser
-const db = require('./log.js')
+const db = require('./src/services/database.js')
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -51,6 +51,7 @@ if(port == undefined){
 const server = app.listen(port, () => {
   console.log('App listening on port %PORT%'.replace('%PORT%',port))
 });
+//const accessLog = fs.createWriteStream( logdir+'access.log', { flags: 'a' })
 
 let logging = morgan('combined')
 
@@ -75,7 +76,7 @@ app.get('/app/', (req,res,next) => {
 
 //middleware
 app.use('/app/log/access',(req,res,next) =>{ //use or get?
-  /*let logdata = {
+  let logdata = {
     remoteaddr: req.ip,
     remoteuser: req.user,
     time: Date.now(),
@@ -90,9 +91,9 @@ app.use('/app/log/access',(req,res,next) =>{ //use or get?
   const statement = db.prepare('INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (?,?,?,?,?,?,?,?,?,?)')
   const info = statement.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent)
   res.status(200).json(info) 
-  next()*/
+  next()
  
-  let logdata = {
+  /*let logdata = {
     remoteaddr: req.ip,
     remoteuser: req.user,
     time: Date.now(),
@@ -110,7 +111,7 @@ app.use('/app/log/access',(req,res,next) =>{ //use or get?
   )
   res.status(200).json(statement) 
   next()
-})
+})*/
 
 if(args.debug == true){
 
@@ -132,25 +133,27 @@ if(args.log == true){
   app.use(morgan('combined', {stream: writestream}))
 } 
 
+app.use(express.static('./public'))
 
 //defining check endpoint
-app.get('/app', (req,res) => {
+/*app.get('/app', (req,res) => {
     res.status(200).end('200 OK')
-})
-
-/*app.get('/app/', (req,res,next) => {
-  res.json({"message": "API working (200)"});
-  res.status(200);
 })*/
 
-
-app.get('/app/echo/:number', (req,res) => {
-  res.status(200).json({'message': req.params.number })
+app.get('/app/', (req,res,next) => {
+  res.json({"message": "API working (200)"});
+  res.status(200);
 })
 
+
+/*app.get('/app/echo/:number', (req,res) => {
+  res.status(200).json({'message': req.params.number })
+})*/
+
 //endpoint for random flip
-app.get('/app/flip', (req,res) => {
-    res.status(200).json({ 'flip' : coinFlip()})
+app.get('/app/flip/', (req,res) => {
+    const flip = coinFlip()
+    res.status(200).json({ 'flip' : flip})
 })
 
 //endpoint for array of flips
