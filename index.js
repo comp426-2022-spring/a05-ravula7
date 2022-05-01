@@ -1,27 +1,5 @@
 // Place your server entry point code here
-
-app.use(express.static('./public'));
-app.use(express.json());
-//Requiring dependencies
-
-const express = require('express');
-const { get } = require('express/lib/response');
-const app = express();
-const morgan = require('morgan')
-const fs = require('fs')
-
-
-//Requiring database file & make express use parser
-const db = require('./src/services/database.js')
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-//Starting app server
-
-let port = 0;
-const args = require('minimist')(process.argv.slice(2)); //slice arguments for port number where args is an array
-port = args['port'] //0
-
+const args = require('minimist')(process.argv.slice(2))
 const help = (`
 server.js [options]
 
@@ -43,10 +21,13 @@ if(args.help || args.h){
   console.log(help)
   process.exit(0)
 }
+const express = require('express');
+const app = express();
+const fs = require('fs');
+const morgan = require('morgan');
+const logdb = require('./src/services/database.js');
+app.use(express.json());
 
-if(port == undefined){
-  port = 5000; //5555?
-}
 
 const server = app.listen(port, () => {
   console.log('App listening on port %PORT%'.replace('%PORT%',port))
@@ -55,17 +36,31 @@ const server = app.listen(port, () => {
 
 let logging = morgan('combined')
 
-//app.use(logging('common', ))
-/*app.use(fs.writeFile('./access.log',data,
-    {flag:'a'}, (err,req,res,next) => {
-      if(err){
-        console.error(err)
-      }
-      else{
-        console.log(morgan('combined'))
-      }
-    }
-))*/
+
+app.use(express.static('./public'));
+
+
+
+
+
+const { get } = require('express/lib/response');
+
+
+
+
+
+//Requiring database file & make express use parser
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+//Starting app server
+
+let port = 0;
+const args = require('minimist')(process.argv.slice(2)); //slice arguments for port number where args is an array
+port = args['port'] //0
+
+
 
 
 app.get('/app/', (req,res,next) => {
@@ -92,26 +87,8 @@ app.use('/app/log/access',(req,res,next) =>{ //use or get?
   const info = statement.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent)
   res.status(200).json(info) 
   next()
+})
  
-  /*let logdata = {
-    remoteaddr: req.ip,
-    remoteuser: req.user,
-    time: Date.now(),
-    method: req.method,
-    url: req.url,
-    protocol: req.protocol,
-    httpversion: req.httpVersion,
-    status: res.statusCode,
-    referer: req.headers['referer'],
-    useragent: req.headers['user-agent']
-  }
-  const statement = db.prepare(
-    `INSERT INTO accesslog (logdata)`
-   // `INSERT INTO accesslog (remoteaddr, remoteuser, time, method, url, protocol, httpversion, status, referer, useragent) VALUES (logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent);`
-  )
-  res.status(200).json(statement) 
-  next()
-})*/
 
 if(args.debug == true){
 
@@ -321,9 +298,4 @@ app.use(function(req, res){
     }
   
   
-    /** Export 
-     * 
-     * Export all of your named functions
-    */
-   
-    
+  
